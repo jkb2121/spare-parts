@@ -101,3 +101,5 @@ ENV/
 .mypy_cache/
 
 .idea
+
+scraping/scrape_results_file.csv
