@@ -1,6 +1,8 @@
 import requests
-
 import urllib3
+from bs4 import BeautifulSoup
+import time
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 urls = [
@@ -32,8 +34,35 @@ urls = [
 
 ]
 
+
+# xmlDict = {}
+urllist = []
+r = requests.get("http://www.haikudesigns.com/sitemap.xml")
+xml = r.text
+
+soup = BeautifulSoup(xml, "html.parser")
+loc_tags = soup.find_all("loc")
+print("The number of sitemaps are {0}".format(len(loc_tags)))
+
+for sitemap in loc_tags:
+    print("Location: {}".format(sitemap.text))
+    # print("Loc: {}".format(sitemap.findNext("loc").text))
+    urllist.append(sitemap.text)
+
+print(urllist)
+
+urls = urllist
+
+output_csv = open("Haiku-Crawl.csv", "w")
+output_csv.write("URL, Code")
+
 for url in urls:
-    print("Url:  {}".format(url))
+    print("Url:  {}\n".format(url))
 
     response = requests.get(url, verify=False, allow_redirects=False)
     print("-Response: {}".format(response))
+    output_csv.write("{}, {}\n".format(url, response.status_code))
+
+    time.sleep(0.5)
+
+output_csv.close()
