@@ -4,6 +4,7 @@ import os
 import time
 import sys
 import yaml
+import re
 
 from sqlalchemy.sql import text
 from sqlalchemy.ext.declarative import declarative_base
@@ -72,6 +73,41 @@ def make_image_filename_string(brand, handle, variant_detail, src):
     return mfilename
 
 
+# Added get_optimal_shopify_url to maximize the shopify url if needed.
+def get_optimal_shopify_url(url, verify=0):
+
+    # The magic only works on Shopify URL's
+    if 'cdn.shopify.com' not in url:
+        return url
+
+    # Clean off the variant URL parameter
+    new_url = re.sub(r'\?v=([0-9]*)', '', url)
+
+    # Build a regex for finding built in dimension URL's
+    regexp_dims = re.compile(r'_([0-9]*)x([0-9]*)\.')
+
+    # If we find any, then substitute for the 1024x1024
+    if regexp_dims.search(url):
+        new_url = re.sub(r'_([0-9]*)x([0-9]*)\.', '_1024x1024.', new_url)
+
+    # If we don't, add the 1024x1024 to the URL
+    else:
+        if ".jpg" in new_url:
+            new_url = re.sub(r'.jpg', '_1024x1024.jpg', new_url)
+        if ".jpeg" in new_url:
+            new_url = re.sub(r'.jpeg', '_1024x1024.jpeg', new_url)
+        if ".png" in new_url:
+            new_url = re.sub(r'.png', '_1024x1024.png', new_url)
+
+    # If we request to verify the URL, and it turns out the new URL doesn't work, just return the old one.
+
+    if verify == 1:
+        r = requests.get(new_url)
+        if r.status_code != 200:
+            return url
+
+    return new_url
+
 # Data Set with all sorts of info, including the URL to scrape.
 with engine.connect() as conn:
     sql = text('''
@@ -89,11 +125,13 @@ with engine.connect() as conn:
         INNER JOIN shopify_handle sh ON sh.prod_id=pvm.Product_ID
     WHERE 
         1=1
-        AND (pd.brand LIKE 'seaguar%' OR pd.brand LIKE 'rapala%' OR pd.brand LIKE 'lucky craft%' OR pd.brand LIKE 'megabass%')
+        AND (pd.brand LIKE 'sunline%' OR pd.brand LIKE 'strike king%' OR pd.brand LIKE 'P-Line%' OR pd.brand LIKE 'Gary%')
+        AND sd.src NOT LIKE '%mcproductimages%'
         AND sh.site='discount-tackle-dotcom'
         AND sd.src != 'novariant'
-        
-    
+        AND sd.src != 'noimage'
+        AND sd.src != ''
+    ORDER BY pd.brand    
     ;
         
         ''')
@@ -147,6 +185,11 @@ with engine.connect() as conn:
 
         # Set the headers so it looks like a legit customer browser.
         headers = {'User-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'}
+
+        # Optimize Shopify URL
+        src_url = get_optimal_shopify_url(src_url)
+
+        # Make the request...
         r = requests.get(src_url, headers=headers, stream=True)
 
 
