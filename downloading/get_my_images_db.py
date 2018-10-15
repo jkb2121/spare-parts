@@ -125,7 +125,9 @@ with engine.connect() as conn:
         INNER JOIN shopify_handle sh ON sh.prod_id=pvm.Product_ID
     WHERE 
         1=1
-        AND (pd.brand LIKE 'sunline%' OR pd.brand LIKE 'strike king%' OR pd.brand LIKE 'P-Line%' OR pd.brand LIKE 'Gary%')
+        AND (pd.brand LIKE 'spro%' OR pd.brand LIKE 'vicious%' OR pd.brand LIKE 'keitech%' OR pd.brand LIKE 'jackall%'
+        OR pd.brand LIKE 'nomad%' OR pd.brand LIKE 'yo-zuri%' OR pd.brand LIKE '13%' OR pd.brand LIKE 'cal%' 
+        OR pd.brand LIKE 'storm%')
         AND sd.src NOT LIKE '%mcproductimages%'
         AND sh.site='discount-tackle-dotcom'
         AND sd.src != 'novariant'
@@ -178,7 +180,7 @@ with engine.connect() as conn:
 
         url = "https://mcproductimages.s3-us-west-2.amazonaws.com/{}/{}".format(urllib.parse.quote(mdir),
                                                                                 urllib.parse.quote(filename))
-        output.write("{}, {}, {}, {}\n".format(row["Product_ID"], row["sku"], row["src"], url))
+        output.write("{},{},{},{}\n".format(row["Product_ID"], row["sku"], row["src"], url))
 
         if os.path.isfile(write_image_path):
             continue
