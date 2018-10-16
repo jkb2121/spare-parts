@@ -36,6 +36,8 @@ Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
 
+# Suppress the SSL Warning Messages that are the result of the verify=False parameter on the requests.get()
+requests.packages.urllib3.disable_warnings()
 
 # String with desired image URL, so when I move to AWS in this location, the url would work.
 def make_image_url_string(prod_id, sku, handle, brand, variant_detail, src):
@@ -125,9 +127,16 @@ with engine.connect() as conn:
         INNER JOIN shopify_handle sh ON sh.prod_id=pvm.Product_ID
     WHERE 
         1=1
-        AND (pd.brand LIKE 'spro%' OR pd.brand LIKE 'vicious%' OR pd.brand LIKE 'keitech%' OR pd.brand LIKE 'jackall%'
-        OR pd.brand LIKE 'nomad%' OR pd.brand LIKE 'yo-zuri%' OR pd.brand LIKE '13%' OR pd.brand LIKE 'cal%' 
-        OR pd.brand LIKE 'storm%')
+        AND (pd.brand LIKE 'williamson%' OR pd.brand LIKE 'mustad%' OR pd.brand LIKE 'bass%mafia%' OR pd.brand LIKE 'jerry%'
+        OR pd.brand LIKE 'johnson%' OR pd.brand LIKE 'gene%larew%' OR pd.brand LIKE 'evergreen%' OR pd.brand LIKE 'duel%'
+        OR pd.brand LIKE 'lake%stream%' OR pd.brand LIKE 'r2%' OR pd.brand LIKE 'epoch%' OR pd.brand LIKE 'plano%'
+        OR pd.brand LIKE 'arbogast%' OR pd.brand LIKE 'skinny%' OR pd.brand LIKE 'nojos%' OR pd.brand LIKE 'wiley%'
+        OR pd.brand LIKE 'luhr%' OR pd.brand LIKE 'trapper%' OR pd.brand LIKE 'lazer%' OR pd.brand LIKE 'rod%glove%'
+        OR pd.brand LIKE 'don%iovino%' OR pd.brand LIKE 'heddon%' OR pd.brand LIKE 'maxx%' OR pd.brand LIKE 'yum%'
+        OR pd.brand LIKE 'eagle%claw%' OR pd.brand LIKE 'dry%creek%' OR pd.brand LIKE 'missile%' OR pd.brand LIKE 'netbait%'
+        OR pd.brand LIKE 'westin%' OR pd.brand LIKE 'maxima%' OR pd.brand LIKE 'bill%lewis%' OR pd.brand LIKE 'bobby%garland%'
+        OR pd.brand LIKE 'strike%pro%' OR pd.brand LIKE 'owner%' OR pd.brand LIKE 'megabass%'
+        )
         AND sd.src NOT LIKE '%mcproductimages%'
         AND sh.site='discount-tackle-dotcom'
         AND sd.src != 'novariant'
@@ -139,7 +148,8 @@ with engine.connect() as conn:
         ''')
 
 
-    output = open("output.csv", "w");
+
+    output = open("output.csv", "w")
 
     rows = conn.execute(sql, {})
     for row in rows:
@@ -180,7 +190,6 @@ with engine.connect() as conn:
 
         url = "https://mcproductimages.s3-us-west-2.amazonaws.com/{}/{}".format(urllib.parse.quote(mdir),
                                                                                 urllib.parse.quote(filename))
-        output.write("{},{},{},{}\n".format(row["Product_ID"], row["sku"], row["src"], url))
 
         if os.path.isfile(write_image_path):
             continue
@@ -192,13 +201,18 @@ with engine.connect() as conn:
         src_url = get_optimal_shopify_url(src_url)
 
         # Make the request...
-        r = requests.get(src_url, headers=headers, stream=True)
+        r = requests.get(src_url, headers=headers, stream=True, verify=False)
 
+        if r.status_code == 200:
+            output.write("{},{},{},{}\n".format(row["Product_ID"], row["sku"], row["src"], url))
 
-        # for each chunk of the image, write it to the file specified
-        with open(write_image_path, 'wb') as fd:
-            for chunk in r.iter_content(2000):
-                fd.write(chunk)
+            # for each chunk of the image, write it to the file specified
+            with open(write_image_path, 'wb') as fd:
+                for chunk in r.iter_content(2000):
+                    fd.write(chunk)
+        else:
+            print("URL Error: Status Code: {}, URL: {}".format(r.status_code, row["src"]))
+            continue
 
         print("\n--------------------------------")
 
