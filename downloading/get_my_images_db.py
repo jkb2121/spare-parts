@@ -127,19 +127,20 @@ with engine.connect() as conn:
         INNER JOIN shopify_handle sh ON sh.prod_id=pvm.Product_ID
     WHERE 
         1=1
-        AND (pd.brand LIKE 'williamson%' OR pd.brand LIKE 'mustad%' OR pd.brand LIKE 'bass%mafia%' OR pd.brand LIKE 'jerry%'
-        OR pd.brand LIKE 'johnson%' OR pd.brand LIKE 'gene%larew%' OR pd.brand LIKE 'evergreen%' OR pd.brand LIKE 'duel%'
-        OR pd.brand LIKE 'lake%stream%' OR pd.brand LIKE 'r2%' OR pd.brand LIKE 'epoch%' OR pd.brand LIKE 'plano%'
-        OR pd.brand LIKE 'arbogast%' OR pd.brand LIKE 'skinny%' OR pd.brand LIKE 'nojos%' OR pd.brand LIKE 'wiley%'
-        OR pd.brand LIKE 'luhr%' OR pd.brand LIKE 'trapper%' OR pd.brand LIKE 'lazer%' OR pd.brand LIKE 'rod%glove%'
-        OR pd.brand LIKE 'don%iovino%' OR pd.brand LIKE 'heddon%' OR pd.brand LIKE 'maxx%' OR pd.brand LIKE 'yum%'
-        OR pd.brand LIKE 'eagle%claw%' OR pd.brand LIKE 'dry%creek%' OR pd.brand LIKE 'missile%' OR pd.brand LIKE 'netbait%'
-        OR pd.brand LIKE 'westin%' OR pd.brand LIKE 'maxima%' OR pd.brand LIKE 'bill%lewis%' OR pd.brand LIKE 'bobby%garland%'
-        OR pd.brand LIKE 'strike%pro%' OR pd.brand LIKE 'owner%' OR pd.brand LIKE 'megabass%'
+        AND (pd.brand LIKE 'williamson%'
+        OR pd.brand LIKE 'gene%larew%'  
+        OR pd.brand LIKE 'r2%' OR pd.brand LIKE 'plano%'
+        OR pd.brand LIKE 'skinny%' OR pd.brand LIKE 'nojos%' OR pd.brand LIKE 'wiley%'
+        OR pd.brand LIKE 'trapper%' OR pd.brand LIKE 'rod%glove%'
+        OR pd.brand LIKE 'yum%'
+        OR pd.brand LIKE 'netbait%'
+        OR pd.brand LIKE 'westin%' OR pd.brand LIKE 'bobby%garland%'
+        OR pd.brand LIKE 'strike%pro%' OR pd.brand LIKE 'owner%'
         )
         AND sd.src NOT LIKE '%mcproductimages%'
         AND sh.site='discount-tackle-dotcom'
         AND sd.src != 'novariant'
+        AND sd.src != 'none'
         AND sd.src != 'noimage'
         AND sd.src != ''
     ORDER BY pd.brand    
