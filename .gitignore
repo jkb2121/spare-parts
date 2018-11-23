@@ -106,3 +106,5 @@ scraping/scrape_results_file.csv
 
 downloading/work
 downloading/work/*
+
+json/work
