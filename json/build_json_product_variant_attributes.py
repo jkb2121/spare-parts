@@ -33,7 +33,7 @@ if write_product_variant_attributes_json:
                         if v["sku"] == pvav[11]:
                             variant_found = True
 
-                            attribute = [{"id": pvav[3], "name": pvav[6], "value": pvav[9]}]
+                            attribute = {"id": pvav[3], "name": pvav[6], "value": pvav[9]}
                             v["attributes"].append(attribute)
                             break
 
