@@ -108,3 +108,7 @@ downloading/work
 downloading/work/*
 
 json/work
+
+db_via_ssh/haikudb.pem
+downloading/output-cleanup-1.csv
+downloading/output-cleanup-2.csv
